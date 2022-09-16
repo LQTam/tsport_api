@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\OrderDetail;
+use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 
 class OrderDetailController extends Controller
@@ -31,7 +31,7 @@ class OrderDetailController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\OrderDetail  $orderDetail
+     * @param  \App\Models\OrderDetail  $orderDetail
      * @return \Illuminate\Http\Response
      */
     public function show(OrderDetail $orderDetail)
@@ -43,7 +43,7 @@ class OrderDetailController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\OrderDetail  $orderDetail
+     * @param  \App\Models\OrderDetail  $orderDetail
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, OrderDetail $orderDetail)
@@ -54,7 +54,7 @@ class OrderDetailController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\OrderDetail  $orderDetail
+     * @param  \App\Models\OrderDetail  $orderDetail
      * @return \Illuminate\Http\Response
      */
     public function destroy(OrderDetail $orderDetail)

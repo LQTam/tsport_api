@@ -5,9 +5,9 @@
 use App\Model;
 use Faker\Generator as Faker;
 
-$factory->define(\App\Supplier::class, function (Faker $faker) {
-    $users = collect(\App\User::all()->modelKeys());
-    
+$factory->define(\App\Models\Supplier::class, function (Faker $faker) {
+    $users = collect(\App\Models\User::all()->modelKeys());
+
     return [
         'company_name' => $faker->company,
         'contact_fname' => $faker->firstName,

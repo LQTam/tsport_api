@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\OrderSuccess;
 use App\Http\Resources\Order\OrderCollection;
 use App\Mail\NotifyOrderOutOfStockMail;
 use App\Mail\OrderConfirmed;
 use App\Mail\OrderShipped;
+use App\Models\Order;
 use App\Notifications\OrderSuccessNotification;
-use App\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -84,7 +83,7 @@ class OrderController extends Controller
     {
         if (Gate::denies('create_order')) abort(401);
         $data = $request->all();
-        $order = \App\Order::create([
+        $order = \App\Models\Order::create([
             'madh' => strtoupper(substr(md5(microtime()), rand(0, 26), 2)) . substr(md5(microtime()), rand(0, 26), 5),
             'user_id' => $data['user_id'],
             'payment_id' => $data['payment_method']['id'],
@@ -94,7 +93,7 @@ class OrderController extends Controller
         array_push($mailData, $order);
         array_push($mailData, $data);
         foreach ($data['products'] as $prod) {
-            $orderDetails = \App\OrderDetail::create([
+            $orderDetails = \App\Models\OrderDetail::create([
                 'order_id' => $order->id,
                 'product_id' => $prod['id'],
                 'price' => $prod['product_price'],
@@ -114,14 +113,13 @@ class OrderController extends Controller
         $data['madh'] = $order->madh;
         Mail::to($data['email'])->send(new OrderShipped($data));
         // broadcast(new OrderSuccess($order))->toOthers();
-        $users = \App\User::role(['admin', 'sell employee'])->get();
+        $users = \App\Models\User::role(['admin', 'sell employee'])->get();
         Notification::locale('vi_VN')->send($users, new OrderSuccessNotification($order));
         return response()->json(['message' => 'Successful order. Check your mail.', 'order_id' => $order->id]);
     }
-    public function delete($madh)
+    public function destroy(Order $order)
     {
         if (Gate::denies('delete_order')) abort(401);
-        $order = Order::where('madh', $madh)->first();
         $order->delete();
         return response()->json(['message' => 'Success delete order.']);
     }

@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Customer;
 use App\Http\Controllers\Controller;
-use App\Order;
-use App\Product;
-use App\Supplier;
+use App\Models\Customer;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class AdminDashboard extends Controller
 {

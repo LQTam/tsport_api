@@ -2,19 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
-use App\Http\Requests\User\UserStoreRequest;
-use App\Http\Requests\User\UserUpdateRequest;
 use App\Http\Resources\User\User as UserResource;
 use App\Http\Resources\User\UserCollection;
-use App\Supplier;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {

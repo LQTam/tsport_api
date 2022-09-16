@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
 use App\Http\Resources\Customer\CustomerResource;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {

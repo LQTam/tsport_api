@@ -1,9 +1,11 @@
 <?php
 
-use App\Category;
-use App\Color;
-use App\Product;
-use Illuminate\Http\Request;
+use App\Http\Resources\Category\CategoryCollection;
+use App\Models\Category;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Supplier;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,34 +18,10 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-use App\Supplier;
-use Illuminate\Support\Facades\File;
-use App\Order;
 
-
-function generateRandomString($length = 10)
-{
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-}
 
 Route::get('/', function () {
-    // $data = DB::table("customers")
-    // ->whereBetween('created_at',['2020-04-31','2020-06-1'])
-    // ->get();
-    // return $data;
     return view('welcome');
-});
-
-Route::get('/order1', function () {
-    $order =  Order::where('madh', 'A622b9f')->first();
-    $order->load('detail.product.supplier');
-    return $order;
 });
 
 Route::get('/removeRole', function () {
@@ -54,8 +32,8 @@ Route::get('/product1', function () {
 });
 
 Route::get('/products/{product_id}/colors/{color_id}', 'ColorProductPictureController@show');
+
 Route::get('/{product}', function (Product $product) {
-    // $ids = \App\SubCategory::select('id')->where('category_id', 1)->get();
     $product->load('categories');
     $ids = [];
     foreach ($product->categories as $v) {
@@ -68,21 +46,14 @@ Route::get('/{product}', function (Product $product) {
         ->with(['categories', 'colors.sizes', 'colors.pictures', 'colors', 'supplier'])
         ->limit(15)
         ->get();
-    // return Product::join('product_category as pc', 'pc.product_id', '=', 'products.id')
-    //     ->join('sub_categories as sc', 'pc.sub_category_id', '=', 'sc.id')
-    //     ->where('sc.category_id', '=', 1)
-    //     ->with(['categories'])
-    //     ->paginate(25);
-    // $product = Product::all();
-    // foreach ($product as $key => $value) {
-    //     $value->update(['slug' => Illuminate\Support\Str::slug($value->product_name)]);
-    // }
-    // return 'done';
     $products = Product::with(['colors' => function ($query) {
         $query->where('name', 'black');
     }, 'colors.pictures', 'colors.sizes', 'supplier', 'categories'])->get();
     return $products;
 });
+
+Route::get("suppliers/{supplier:supplier_code}", [\App\Http\Controllers\SupplierController::class,'show']);
+
 Route::get('craw', function () {
     $url = 'https://www.gymshark.com/products/gymshark-premium-baselayer-shorts-light-grey';
     // $crawler = GoutteFacade::request('get', env('GYM_SHARK') . $url);
@@ -98,42 +69,6 @@ Route::get('craw', function () {
             return $node->attr('data-image');
         });
     $data = ['name' => $name, 'image' => implode(',', $pImages)];
-    dump($name);
-    // $products = Product::with(['colors', 'colors.pictures', 'colors.sizes', 'supplier'])->get();
-    // // return $products;
-    // return new ProductResource($products);
-});
-
-
-Route::get('assignCategoryForProduct', function () {
-    $product = Product::all();
-    foreach ($product as $prod) {
-        $prod->category_id = random_int(2, 30);
-        $prod->size_id = random_int(1, 5);
-        $prod->color_id = random_int(1, 5);
-        $prod->save();
-    }
-    return 'done';
-});
-
-
-
-Route::get('getAllFileInADirectory', function () {
-    // return public_path();
-    $path = storage_path('app/public/products/' . 1);
-    $filesProdInStorage = File::allFiles(storage_path('app/public/products/' . 1));
-    return gettype($filesProdInStorage);
-    // foreach ($files as $file) {
-    //     if ($file->getFilename() == 'ENERGY_SEAMLESS_SHORTS_BLACK.C-Edit.webp') {
-    //         dd($file);
-    //     }
-    // }
-});
-
-Route::get('deleteDirectory', function () {
-    $path = storage_path('app/public/products/117');
-    // return $path;
-    return File::deleteDirectory($path);
 });
 
 

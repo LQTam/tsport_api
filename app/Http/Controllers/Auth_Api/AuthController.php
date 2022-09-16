@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth_Api;
 
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +16,7 @@ class AuthController extends Controller
      * Create a new AuthController instance.
      *
      * @return void
-     
+
      */
     public function __construct()
     {
@@ -58,21 +58,6 @@ class AuthController extends Controller
         }
         $user['userAvatarLink'] = asset('storage/users/' . $user->id . '/image/');
         return response()->json($user->load($loads));
-    }
-    public function me1(Request $request)
-    {
-        $loads = [];
-        $user = auth('api')->user();
-        if ($user->hasRole('customer')) {
-            array_push($loads, 'customer');
-            $user['avatarLink'] = asset('storage/customers/' . $user->id . '/');
-        }
-        if ($user->hasRole('supplier')) {
-            array_push($loads, 'supplier');
-            $user['logoLink'] = asset('storage/suppliers/' . $user->id . '/');
-        }
-        $user['userAvatarLink'] = asset('storage/users/' . $user->id . '/image/');
-        return response()->json(['user' => $user->load($loads)]);
     }
 
     public function update(Request $request, User $user)
@@ -121,25 +106,6 @@ class AuthController extends Controller
         }
         $user->load($loads);
         return response()->json(['message' => 'Successful update info.!', 'user' => $user]);
-    }
-
-    public function changePassword(Request $request, User $user)
-    {
-        if (Gate::denies('edit_user')) return abort(401);
-        $validator = $this->validate($request, [
-            'oldPsw' => 'required',
-            'newPsw' => 'required|same:confirmPsw',
-        ]);
-        if (Hash::check($validator['oldPsw'], $user->password)) {
-            Log::warning("SOMETHING", [$request->all()]);
-            $user->update(['password' => Hash::make($validator['newPsw'])]);
-            return response()->json(['message' => 'Successful update password!', 'data' => $user]);
-        } else {
-            return response()->json(
-                ['error' => 'Old password not matched.'],
-                422
-            );
-        }
     }
 
     /**

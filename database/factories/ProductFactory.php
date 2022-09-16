@@ -5,7 +5,7 @@
 use App\Model;
 use Faker\Generator as Faker;
 
-$factory->define(\App\Product::class, function (Faker $faker) {
+$factory->define(\App\Models\Product::class, function (Faker $faker) {
     return [
         'masp'=> uniqid(),
         'product_name' => $faker->word,

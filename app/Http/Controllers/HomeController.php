@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
 use App\Http\Resources\Product\Product as ProductResource;
 use App\Http\Resources\Product\ProductCollection;
-use App\Product;
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +32,7 @@ class HomeController extends Controller
         $category_name = $request->category_name;
         $offset = ($current_page * $length);
         $category = DB::select("select sc.id,sc.name from sub_categories as sc where sc.slug = '" . $category_name . "' limit 1");
-        $category = \App\SubCategory::where('slug', $category_name)->first();
+        $category = \App\Models\SubCategory::where('slug', $category_name)->first();
 
         $products = Product::select('products.*')
             ->join('product_category as pc', 'pc.product_id', '=', 'products.id')

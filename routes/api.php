@@ -1,133 +1,108 @@
 <?php
 
-use App\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth_Api\{
+    AuthController,
+    UpdateProfileController
+};
+use App\Http\Controllers\{
+    CategoryController,
+    OrderController,
+    SupplierController,
+    CustomerController,
+    PermissionController,
+    ColorController,
+    ShippingListController,
+    PaymentListController,
+    SizeListController,
+    ConfirmOrderController,
+    OrderOutOfStockController,
+    ListNotificationController,
+    UserNotificationController,
+    UpdateUserDetailController,
+    UserController,
+    ListRuleController,
+    RoleController,
+    SaveProductQuantityController,
+    UpdateProductAvailableController,
+    ProductColorPictureController,
+    DeleteManyPictureController,
+    DeleteManyProductController,
+    ProductController
+};
+use App\Http\Controllers\Home\FrontendProductController;
+use App\Http\Controllers\Admin\AdminDashboard;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::get('/getAllProducts1', function () {
-    return Product::paginate(10);
-});
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function () {
-    Route::namespace('Auth_Api')->group(function () {
-        Route::post('login', 'AuthController@login');
-        Route::get('logout', 'AuthController@logout');
-        Route::put('changePassword/{user}', "AuthController@changePassword");
-        Route::put('update/{user}', "AuthController@update");
-        Route::post('refresh', 'AuthController@refresh');
-        Route::post('me', 'AuthController@me');
-        Route::post('me1', 'AuthController@me1');
-    });
+    Route::post('login',[AuthController::class,'login'])->name('login');
+    Route::get('logout', [AuthController::class, 'logout']);
+    Route::put('update/{user}', UpdateProfileController::class);
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::post('me', [AuthController::class, 'me']);
 });
-Route::get('/demo', function (Request $request) {
-    return (int) $request->user('api')->hasRole('admin');
-});
-Route::get('shippings', 'ShippingController@index');
-Route::get('payments', 'PaymentController@index');
 
+Route::get('shippings', ShippingListController::class);
+Route::get('payments', PaymentListController::class);
 
-Route::apiResource('categories', 'CategoryController');
+Route::apiResource('categories', CategoryController::class);
 Route::group([
     'namespace' => 'Home',
 ], function () {
-    Route::get('getAllProducts', 'ProductController@getAllProducts');
-    Route::get('fetchProdsByKey', 'ProductController@fetchProdsByKey');
-    Route::get('getProductsNewRelease', 'ProductController@getProductsNewRelease');
-    Route::get('getRelatedProducts/{product}', 'ProductController@getRelatedProducts');
-    Route::get('filterProductsBySize', 'ProductController@filterProductsBySize1');
-    Route::get('getProduct/{product}', 'ProductController@getProduct');
+    Route::get('getAllProducts', [FrontendProductController::class,'getAllProducts']);
+    Route::get('fetchProdsByKey', [FrontendProductController::class,'fetchProdsByKey']);
+    Route::get('getProductsNewRelease', [FrontendProductController::class,'getProductsNewRelease']);
+    Route::get('getRelatedProducts/{product}', [FrontendProductController::class,'getRelatedProducts']);
+    Route::get('filterProductsBySize', [FrontendProductController::class,'filterProductsBySize1']);
+    Route::get('getProduct/{product}', [FrontendProductController::class,'getProduct']);
 });
 
-Route::get('getRolesAll', function () {
-    return \Spatie\Permission\Models\Role::pluck('name');
-});
+Route::get('fetchOrders/{uid}', [OrderController::class,'fetchOrdersByUserID']);
 
-Route::get('fetchOrders/{uid}', 'OrderController@fetchOrdersByUserID');
+Route::apiResource('colors', ColorController::class);
 
-Route::apiResource('colors', 'ColorController');
-
-Route::get('sizes', 'SizeController@index');
-Route::post('login', 'AuthController@login')->name('login');
-Route::post('register', 'AuthController@register');
+Route::get('sizes', SizeListController::class);
+Route::post('register', [AuthController::class,'register']);
 Route::group(['middleware' => 'auth.api'], function () {
-    Route::get('user', function (Request $request) {
-        return $request->user();
+    Route::prefix('admin/dashboard')->group(function() {
+        Route::get('/', [AdminDashboard::class,'index']);
+        Route::get('/customer', [AdminDashboard::class,'filterCustomerBtwDate']);
+        Route::get('/supplier', [AdminDashboard::class,'filterSupplierBtwDate']);
+        Route::get('/order', [AdminDashboard::class,'filterOrderBtwDate']);
     });
-    Route::get('admin/dashboard', 'Admin\AdminDashboard@index');
-    Route::get('admin/dashboard/customer', 'Admin\AdminDashboard@filterCustomerBtwDate');
-    Route::get('admin/dashboard/supplier', 'Admin\AdminDashboard@filterSupplierBtwDate');
-    Route::get('admin/dashboard/order', 'Admin\AdminDashboard@filterOrderBtwDate');
-    Route::post('orders', 'OrderController@store');
-    Route::get('orders', 'OrderController@index');
-    Route::post('confirmOrder/{madh}', 'OrderController@confirmOrder');
-    Route::post('outOfStock/{madh}', 'OrderController@outOfStock');
-    Route::delete('delete/{madh}', 'OrderController@delete');
 
-    Route::get('notifications', 'NotificationController@notifications');
-    Route::delete('deleteNotify/{user}/{id}', 'NotificationController@delete');
-    Route::get('unread/{notifyID}/{userID}', 'NotificationController@unread');
+    Route::post('confirmOrder/{madh}', ConfirmOrderController::class);
+    Route::post('outOfStock/{madh}', OrderOutOfStockController::class);
+    Route::apiResource('orders',OrderController::class)->only(['store','index','destroy']);
+
+    Route::get('notifications', ListNotificationController::class);
+    Route::delete('deleteNotify/{user}/{notifyID}', [UserNotificationController::class,'delete']);
+    Route::get('markAsRead/{user}/{notifyID}', [UserNotificationController::class,'markAsRead']);
+
+    Route::put('userDetail/{userDetail}', UpdateUserDetailController::class);
+
+    Route::apiResource('users', UserController::class);
+    Route::get('rules', ListRuleController::class);
+    Route::apiResource('roles', RoleController::class);
 
 
-    Route::put('userDetail/{userDetailID}', 'UserDetailController@update');
+    Route::prefix('products')->group(function() {
+        Route::put('saveQuantity/{color_size}', SaveProductQuantityController::class);
+        Route::put('updateProdStatus/{product}', UpdateProductAvailableController::class);
+        Route::prefix("{product}/colors/{color}/pictures")->group(function() {
+            Route::apiResource("/", ProductColorPictureController::class)->only(['index','store']);
+        });
+        Route::post('pictures/deleteSelectedItem', DeleteManyPictureController::class);
+        Route::apiResource("/", ProductController::class);
+    });
 
-    Route::apiResource('users', 'UserController');
-    Route::get('rules', 'RuleController@index');
-    // Route::apiResource('pictures', 'ProductPictureController');
-    Route::apiResource('roles', 'RoleController');
-    // Route::apiResource('products', 'ProductController');
-    Route::get('products', 'ProductController@index');
-    Route::get('products/{product}', 'ProductController@show');
-    Route::post('products', 'ProductController@store');
-    Route::post('products', 'ProductController@store');
-    Route::put('products/saveQuantity/{color_size}', 'ProductController@saveQuantity');
-    Route::put('products/updateProdStatus/{product}', 'ProductController@updateProdStatus');
-    Route::get('products/{product_id}/colors/{color_id}', 'ColorProductPictureController@show');
-    Route::post('products/{product_id}/colors/{color_id}', 'ColorProductPictureController@addImageForProductColor');
-    Route::put('products/{product}', 'ProductController@update');
-    Route::delete('products/{product}', 'ProductController@destroy');
-    Route::post(
-        'products/deleteItems',
-        'ProductController@deleteItems'
-    );
-    Route::post('colorpicture/deleteSelectedItem', 'ColorProductPictureController@deleteSelectedItem');
-    // Route::apiResource('suppliers', 'SupplierController');
+    Route::post('deleteItems', DeleteManyProductController::class);
 
-    Route::get('suppliers', 'SupplierController@index');
-    Route::get('suppliers/{userID}', "SupplierController@show");
-    Route::post('suppliers', "SupplierController@store");
-    Route::put("suppliers/{supplier}", 'SupplierController@update');
-    Route::delete("suppliers/{supplier}", 'SupplierController@destroy');
+    Route::apiResource("suppliers", SupplierController::class);
 
-    Route::get('categoriesM', 'CategoryController@fetchAll');
-    Route::post('categoriesM', 'CategoryController@storeCate');
-    Route::put('categoriesM/{category}', 'CategoryController@update');
-    Route::delete('categoriesM/{category}', 'CategoryController@destroy');
-    Route::put('subcategories/{sub_category}', 'SubCategoryController@update');
-    Route::delete('subcategories/{sub_category}', 'SubCategoryController@destroy');
+    Route::apiResource("customers", CustomerController::class);
 
-    Route::get('customers', 'CustomerController@index');
-    Route::get('customers/{customer}', 'CustomerController@show');
-    Route::post('customers/{customer}', 'CustomerController@store');
-    Route::put('customers/{customer}', 'CustomerController@update');
-    Route::put('customers1/{customer}', 'CustomerController@update1');
-    Route::delete('customers/{customer}', 'CustomerController@destroy');
-
-    Route::apiResource('permissions', 'PermissionController');
+    Route::apiResource('permissions', PermissionController::class);
 });

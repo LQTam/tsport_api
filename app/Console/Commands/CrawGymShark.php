@@ -2,11 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\ColorProduct;
-use App\Http\Resources\Category\SubCategoryCollection;
-use App\SubCategory;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use Weidner\Goutte\GoutteFacade;
 
 class CrawGymShark extends Command
@@ -109,7 +105,7 @@ class CrawGymShark extends Command
             ->each(function ($node) {
                 return $node->text();
             });
-        $cnames = \App\SubCategory::with('parent')->get();
+        $cnames = \App\Models\SubCategory::with('parent')->get();
         $cnameslug = $cnames->pluck('slug');
         $category = explode('/', $url);
         $ids = [];
@@ -150,11 +146,11 @@ class CrawGymShark extends Command
         $data = ['slug' => \Illuminate\Support\Str::slug($name), 'product_price' => explode('$', $arr[0])[1], 'product_name' => $name, 'product_description' => $desc];
         dump($data);
         // dump(['color' => implode(' ', explode('/', $color)), 'idLast' => $idLast]);
-        // $product = \App\Product::create($data);
+        // $product = \App\Models\Product::create($data);
         // $colorM = ColorProduct::create(['name' => implode(' ', explode('/', $color)), 'product_id' => $product->id]);
 
         // foreach ($size as $key => $value) {
-        //     \App\ColorSize::create(['name' => $value, 'color_id' => $colorM->id]);
+        //     \App\Models\ColorSize::create(['name' => $value, 'color_id' => $colorM->id]);
         // }
         // $product->categories()->sync($idLast);
         // $images = implode(',', $pImages);
@@ -178,7 +174,7 @@ class CrawGymShark extends Command
         //         ];
 
         //         // Log::warning("SOMETHING", ['img' => $img]);
-        //         \App\ColorProductPicture::create($d);
+        //         \App\Models\ColorProductPicture::create($d);
         //         // delete from products where id BETWEEN 267 and 321
         //     }
         // }
@@ -237,7 +233,7 @@ class CrawGymShark extends Command
                 // 'url' => env('GYM_SHARK') . $url
             ];
             // dump($data);
-            \App\Product::create($data);
+            \App\Models\Product::create($data);
         };
         // $data = [
         //     "product_name" => $prodTitle,
@@ -248,6 +244,6 @@ class CrawGymShark extends Command
         //     //     // 'url' => env('GYM_SHARK') . $url
         // ];
         // dump($data);
-        // \App\Product::create($data);
+        // \App\Models\Product::create($data);
     }
 }

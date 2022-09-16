@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\ProductDetail;
+use App\Models\ProductDetail;
 use Illuminate\Http\Request;
 
 class ProductDetailController extends Controller
@@ -31,7 +31,7 @@ class ProductDetailController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ProductDetail  $productDetail
+     * @param  \App\Models\ProductDetail  $productDetail
      * @return \Illuminate\Http\Response
      */
     public function show(ProductDetail $productDetail)
@@ -43,7 +43,7 @@ class ProductDetailController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ProductDetail  $productDetail
+     * @param  \App\Models\ProductDetail  $productDetail
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ProductDetail $productDetail)
@@ -54,7 +54,7 @@ class ProductDetailController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ProductDetail  $productDetail
+     * @param  \App\Models\ProductDetail  $productDetail
      * @return \Illuminate\Http\Response
      */
     public function destroy(ProductDetail $productDetail)
